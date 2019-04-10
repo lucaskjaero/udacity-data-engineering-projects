@@ -6,16 +6,19 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
-    # open song file
-    df = 
+    try:
+        # open song file
+        df = pd.read_json(filepath, lines=True)
 
-    # insert song record
-    song_data = 
-    cur.execute(song_table_insert, song_data)
-    
-    # insert artist record
-    artist_data = 
-    cur.execute(artist_table_insert, artist_data)
+        # insert song record
+        song_data =(df["song_id"][0], df["title"][0], df["artist_id"][0], int(df["year"][0]), float(df["duration"][0]))
+        cur.execute(song_table_insert, song_data)
+
+        # insert artist record
+        artist_data = (df["artist_id"][0], df["artist_name"][0], df["artist_location"][0], float(df["artist_latitude"][0]), float(df["artist_longitude"][0]))
+        cur.execute(artist_table_insert, artist_data)
+    except Exception as e:
+        print("%s caused by %s" % (e, df))
 
 
 def process_log_file(cur, filepath):
