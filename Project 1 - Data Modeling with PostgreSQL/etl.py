@@ -22,19 +22,24 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
-    # open log file
-    df = 
+    try:
+        # open log file
+        df = pd.read_json(filepath, lines=True)
 
-    # filter by NextSong action
-    df = 
+        # filter by NextSong action
+        df = df[df.page == "NextSong"]
 
-    # convert timestamp column to datetime
-    t = 
-    
-    # insert time data records
-    time_data = 
-    column_labels = 
-    time_df = 
+        # convert timestamp column to datetime
+        df.ts = pd.to_datetime(df.ts, unit="ms")
+
+        # insert time data records
+        time_data = (df.ts, df.ts.dt.hour, df.ts.dt.day, df.ts.dt.week, df.ts.dt.month, df.ts.dt.year, df.ts.dt.weekday)
+        column_labels = ("start_time", "hour", "day", "week", "month", "year", "weekday")
+        time_df = pd.concat(time_data, axis=1)
+        time_df.columns=column_labels
+
+        for i, row in time_df.iterrows():
+            cur.execute(time_table_insert, list(row))
 
     for i, row in time_df.iterrows():
         cur.execute(time_table_insert, list(row))
