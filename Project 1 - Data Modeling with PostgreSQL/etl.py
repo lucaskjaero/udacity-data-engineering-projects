@@ -41,15 +41,13 @@ def process_log_file(cur, filepath):
         for i, row in time_df.iterrows():
             cur.execute(time_table_insert, list(row))
 
-    for i, row in time_df.iterrows():
-        cur.execute(time_table_insert, list(row))
+        # load user table
+        user_df = df[["userId", "firstName", "lastName", "gender", "level"]].drop_duplicates()
 
-    # load user table
-    user_df = 
+        # insert user records
+        for i, row in user_df.iterrows():
+            cur.execute(user_table_insert, row)
 
-    # insert user records
-    for i, row in user_df.iterrows():
-        cur.execute(user_table_insert, row)
 
     # insert songplay records
     for index, row in df.iterrows():
