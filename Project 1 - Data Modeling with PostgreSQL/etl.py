@@ -36,6 +36,8 @@ def process_log_file(cur, filepath):
         time_data = (df.ts, df.ts.dt.hour, df.ts.dt.day, df.ts.dt.week, df.ts.dt.month, df.ts.dt.year, df.ts.dt.weekday)
         column_labels = ("start_time", "hour", "day", "week", "month", "year", "weekday")
         time_df = pd.concat(time_data, axis=1)
+
+        # Perhaps unneccesary but it helps readability.
         time_df.columns=column_labels
 
         for i, row in time_df.iterrows():
@@ -48,17 +50,19 @@ def process_log_file(cur, filepath):
         for i, row in user_df.iterrows():
             cur.execute(user_table_insert, row)
 
+        # insert songplay records
+        for index, row in df.iterrows():
 
-    # insert songplay records
-    for index, row in df.iterrows():
-        
-        # get songid and artistid from song and artist tables
-        results = cur.execute(song_select, (row.song, row.artist, row.length))
-        songid, artistid = results if results else None, None
+            # get songid and artistid from song and artist tables
+            results = cur.execute(song_select, (row.song, row.artist, row.length))
+            songid, artistid = results if results else None, None
 
-        # insert songplay record
-        songplay_data = 
-        cur.execute(songplay_table_insert, songplay_data)
+            # insert songplay record
+            songplay_data = (row["ts"], row["userId"], row["level"], songid, artistid, row["sessionId"], row["location"], row["userAgent"])
+            cur.execute(songplay_table_insert, songplay_data)
+
+    except Exception as e:
+        print("%s caused by %s" % (e, df))
 
 
 def process_data(cur, conn, filepath, func):
